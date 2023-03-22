@@ -1,0 +1,18 @@
+<resources>
+    <string name="app_name">로그인</string>
+    <!-- Strings related to login -->
+    <string name="prompt_id">아이디</string>
+    <string name="prompt_password">패스워드</string>
+    <string name="action_sign_in">로그인</string>
+    <string name="action_sign_in_short">Sign in</string>
+    <string name="welcome">"Welcome !"</string>
+    <string name="invalid_username">Not a valid username</string>
+    <string name="invalid_password">Password must be >5 characters</string>
+    <string name="login_failed">"Login failed"</string>
+    <string name="prompt_admin">관리자 아이디</string>
+    <string name="channel_name">fcm 알림 채널</string>
+    <string name="channel_description">fcm 알림이 오면 받는 곳 입니다.</string>
+    <string name="default_notification_channel_id">fcmChannel</string>
+    <string name="default_notification_channel_name">fcm notification</string>
+    <string name="fcm_message">fcm 알림</string>
+</resources>
