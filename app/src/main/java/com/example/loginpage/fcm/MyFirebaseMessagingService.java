@@ -14,6 +14,7 @@ import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Build;
 import android.util.Log;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.core.app.NotificationCompat;
@@ -22,6 +23,9 @@ import androidx.core.content.ContextCompat;
 
 import com.example.loginpage.R;
 import com.example.loginpage.ui.login.LoginActivity;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 
@@ -37,6 +41,10 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         super.onMessageReceived(message);
 
         Log.d(TAG, "From: " + message.getFrom());
+
+        if(message.getData().size() >0) {
+            Log.d(TAG, "Message data payload: " + message.getData());
+        }
 
         // Check if message contains a notification payload.
         if (message.getNotification() != null) {
@@ -84,4 +92,6 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
         notificationManager.notify(0, notificationBuilder.build());
     }
+
+
 }

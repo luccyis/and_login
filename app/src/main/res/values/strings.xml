@@ -15,4 +15,5 @@
     <string name="default_notification_channel_id">fcmChannel</string>
     <string name="default_notification_channel_name">fcm notification</string>
     <string name="fcm_message">fcm 알림</string>
+    <string name="subscribe_to_weather">fcm 날씨 구독하기</string>
 </resources>

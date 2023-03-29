@@ -1,10 +1,12 @@
 package com.example.loginpage.ui.login;
 
 import android.Manifest;
+import android.app.Activity;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.graphics.Rect;
 import android.os.Build;
 import android.os.Bundle;
 
@@ -20,7 +22,9 @@ import android.text.TextWatcher;
 import android.util.Base64;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.WindowManager;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
@@ -32,6 +36,9 @@ import android.widget.Toast;
 import com.example.loginpage.R;
 import com.example.loginpage.data.model.LoginResponse;
 import com.example.loginpage.databinding.ActivityLoginBinding;
+import com.github.angads25.toggle.interfaces.OnToggledListener;
+import com.github.angads25.toggle.model.ToggleableView;
+import com.github.angads25.toggle.widget.LabeledSwitch;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.messaging.FirebaseMessaging;
@@ -101,9 +108,13 @@ public class LoginActivity extends AppCompatActivity {
         final Button loginButton = binding.login;
         final ProgressBar loadingProgressBar = binding.loading;
 
+        //키보드 감추기 코드
+        getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
+
         Retrofit retrofit = RetrofitService.getInstance();
         RetrofitAPI retrofitAPI = retrofit.create(RetrofitAPI.class);
 
+        //token 가져오기
         FirebaseMessaging.getInstance().getToken()
                 .addOnCompleteListener(new OnCompleteListener<String>() {
                     @Override
@@ -213,6 +224,44 @@ public class LoginActivity extends AppCompatActivity {
                 });
             }
         });
+
+        //여러 기기로 메세지를 보내기 위한 topic 설정
+        final LabeledSwitch subscribeButton = binding.subscribeButton;
+        binding.subscribeButton.setOnToggledListener(new OnToggledListener() {
+            @Override
+            public void onSwitched(ToggleableView toggleableView, boolean isOn) {
+                if(isOn) {
+                    Log.d(TAG, "Subscrbing to weather topic");
+                    FirebaseMessaging.getInstance().subscribeToTopic("weather")
+                            .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                @Override
+                                public void onComplete(@NonNull Task<Void> task) {
+                                    String msg = "Subscribed";
+                                    if (!task.isSuccessful()) {
+                                        msg = "Subscribe failed";
+                                    }
+                                    Log.d(TAG, msg);
+                                    Toast.makeText(LoginActivity.this, msg, Toast.LENGTH_SHORT).show();
+                                }
+                            });
+                } else {
+                    Log.d(TAG, "Unsubscribing to weather topic");
+                    FirebaseMessaging.getInstance().unsubscribeFromTopic("weather")
+                            .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                @Override
+                                public void onComplete(@NonNull Task<Void> task) {
+                                    String msg = "UnSubscribed";
+                                    if (!task.isSuccessful()) {
+                                        msg = "Unsubscribed failed";
+                                    }
+                                    Log.d(TAG, msg);
+                                    Toast.makeText(LoginActivity.this, msg, Toast.LENGTH_SHORT).show();
+                                }
+                            });
+                }
+            }
+        });
+
     }
 
     public void runtimeEnableAutoInit() {
@@ -250,8 +299,18 @@ public class LoginActivity extends AppCompatActivity {
         }
 
         private void hidenkeyboard () {
-            InputMethodManager inputMethodManager = (InputMethodManager) this.getSystemService(Context.INPUT_METHOD_SERVICE);
-            inputMethodManager.hideSoftInputFromWindow(this.getCurrentFocus().getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+            InputMethodManager inputMethodManager = (InputMethodManager) getSystemService(Activity.INPUT_METHOD_SERVICE);
+            View view = getCurrentFocus();
+            if(view == null) {
+                view = new View(this);
+            }
+            inputMethodManager.hideSoftInputFromWindow(view.getWindowToken(), 0);
+        }
+
+        @Override
+        public boolean dispatchTouchEvent(MotionEvent ev) {
+            hidenkeyboard();
+            return super.dispatchTouchEvent(ev);
         }
 
         private final static String SHA1_ENCRYPT_KEY = "CasCadeKey";
@@ -269,5 +328,6 @@ public class LoginActivity extends AppCompatActivity {
 
             return encryptResult;
         }
+
 
 }
